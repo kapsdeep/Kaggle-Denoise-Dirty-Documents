@@ -9,7 +9,7 @@
 * _Timeline: 06/16 AM IST_
 
 ## Submission file
-[DEEPAK_KAPOOR_Session7.ipynb](https://github.com/kapsdeep/EIP-4B/blob/master/Deepak_BATCH_6_ASSIGNMENT4B.ipynb)
+[DEEPAK_KAPOOR_Session7.ipynb](https://github.com/kapsdeep/Kaggle-Denoise-Dirty-Documents/blob/master/DEEPAK_KAPOOR_Session7.ipynb)
 
 ## Strategy Plan
 
