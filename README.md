@@ -19,8 +19,8 @@
   | ------------- |:-------------:| -----:| -----:| -----:| -----:|
   | Prj#1: Kaggle competitions using google collab       | 6/16 | None | 0.2 | Worst error without any processing | Done  :white_check_mark: |
 | Prj#2: Re-use Prj#1 with "simple background removal model"       | 6/16 | None | 0.06002 | Median filters are used for salt & pepper noise & results point out that a image processing would be helpful for the challenge | Done  :white_check_mark: |
-| Prj#3: Build over Prj#2 with "simple linear regression model"       | 6/18 | Other important stuff on monday | NA | NA | Initiated     |
-| Prj#4: Build over Prj#2 using image processing techniques from top kagglers       | 6/20 | NA | NA | Read papers in references also | Not started     |
+| Prj#3: Build over Prj#2 with "simple linear regression model"       | 6/18 | Other important stuff in weekdays | NA | Problem re-structuring for ML, Scatter plaotting training data to arrive at linear relationship, using plt.cmap for image visualisation | In-progress     |
+| Prj#4: Build over Prj#2 using image processing techniques from top kagglers       | 6/20 | Choose from multiple submissions after reading all solutions | NA | starting with colin's solution | Not started     |
 | Prj#5: Implement Prj#4 in Keras using winograd       | 6/22 | NA | NA | NA | Not started     |
 | Prj#6: TBD       | 6/25 | NA | NA | NA | Not started     |
 
@@ -34,50 +34,60 @@
   | Oliver Sherouse      | 0.02811 | [Let's Try Simple Linear Regression Kaggle](https://www.kaggle.com/oliversherouse/let-s-try-simple-linear-regression/code) | concurrent.futures,csv, logging,random, joblib,numpy as np, sklearn.ensemble, sklearn.cross_validation, sklearn.metrics, skimage.data, from pathlib import Path, from PIL import Image as image     |
 
 #### Prj#1: Kaggle competition using google collab 
-1. Enable train/test access in collaboratory :ballot_box_with_check:
-    - #1: Mount google drive to collab
+1. Enable train/test access in collaboratory
+    - (a) Mount google drive to collab
       - [Importing data to Google Colaboratory](https://steemit.com/google-colab/@ankurankan/importing-data-to-google-colaboratory)
       - [Mount gdrive to collab using FUSE](https://colab.research.google.com/drive/1srw_HFWQ2SMgmWIawucXfusGzrj1_U0q)
-    - #2: Upload data to google drive & download to collab
+    - (b) Upload data to google drive & download to collab
         - googledrive APIs
         - Kaggle APIs
           - [Official Kaggle API](https://github.com/Kaggle/kaggle-api)
         - Pydrive (since Byte Order Marker can be removed):heavy_check_mark:
-          -  [GitHub & BitBucket HTML Preview](https://htmlpreview.github.io/?https://raw.githubusercontent.com/gsuitedevs/PyDrive/master/docs/build/html/quickstart.html)
-2. Play with image using matplotlib & PIL :ballot_box_with_check:
-    - [Pyplot Image tutorial](https://matplotlib.org/users/image_tutorial.html) 
-    - [Tutorial — Pillow (PIL Fork) 5.1.1 documentation](https://pillow.readthedocs.io/en/5.1.x/handbook/tutorial.html)
+          -  [GitHub & BitBucket HTML Preview](https://htmlpreview.github.io/?https://raw.githubusercontent.com/gsuitedevs/PyDrive/master/docs/build/html/quickstart.html) 
+2. Play with image using matplotlib & PIL
+    - [Pyplot Image tutorial](https://matplotlib.org/users/image_tutorial.html) :heavy_check_mark:
+    - [Tutorial — Pillow (PIL Fork) 5.1.1 documentation](https://pillow.readthedocs.io/en/5.1.x/handbook/tutorial.html):heavy_check_mark:
 3. Develop error loss function:interrobang:
     - train & train_cleaned(ground truth) form pair of dataset 
     - test doens't have a ground_truth dataset available hence check rmse check possible after kaggle submission (AFAIK)
-4. Develop kaggle submission function :ballot_box_with_check:
+4. Develop kaggle submission function
     - download from collab to gdrive:heavy_check_mark:
-    - download from collab to localdrive
+    - download from collab to localdrive :heavy_check_mark:
 
 #### Prj#2: Re-use Prj#1 with "simple background removal model"
 1. Try background removal model to hit rsme: 0.06:heavy_check_mark: 
 2. Read through scipy:signal & PIL:Image:heavy_check_mark:
 3. Read about Image filtering
+    - [umich Image filtering](https://web.eecs.umich.edu/~jjcorso/t/598F14/files/lecture_0924_filtering.pdf)
     - [CS6670: Computer Vision Lecture 2: Image filtering](https://www.cs.cornell.edu/courses/cs6670/2011sp/lectures/lec02_filter.pdf)
     - [CSE.USF Image Filtering](http://www.cse.usf.edu/~r1k/MachineVisionBook/MachineVision.files/MachineVision_Chapter4.pdf)
-    - [Auckland Univ: Image Filtering Median Filtering](https://www.cs.auckland.ac.nz/courses/compsci373s1c/PatricesLectures/Image%20Filtering_2up.pdf)
+    - [Auckland Univ: Image Filtering Median Filtering](https://www.cs.auckland.ac.nz/courses/compsci373s1c/PatricesLectures/Image%20Filtering_2up.pdf) :heavy_check_mark: 
     - [Signal Processing (scipy.signal) — Other filters Median Filter](https://docs.scipy.org/doc/scipy/reference/tutorial/signal.html)
     - [Prepress and File Formats: Raster vs Vector](https://www.slideshare.net/JenniferJanviere/prepress)
 
 #### Prj#3: Build over Prj#2 using simple linear regression model
+1. Copy flattened arrays of training dataset (train, train_cleaned) :heavy_check_mark:
+2. Develop keras linear regression model
+3. Apply the model on training dataset
+4. Tune hyperparameters
+
+#### Prj#4: Build over Prj#2 using image processing techniques from top kagglers
 1. Try adaptive thresholding
 2. Try canny edge detection
 3. [Gradient Boosting from scratch – ML Review – Medium](https://medium.com/mlreview/gradient-boosting-from-scratch-1e317ae4587d)
 4. [Basics of Ensemble Learning Explained in Simple English](https://www.analyticsvidhya.com/blog/2015/08/introduction-ensemble-learning/)
 
-#### Prj#4: Build over Prj#2 using image processing techniques from top kagglers
-1. Try adaptive thresholding
-2. Try canny edge detection
+
+#### Median Filters
+>Median filters are non-linear filters used widely for removing salt-pepper noise while preserving edges. Since we need to preseve text while removing noise hence seems to better suited for current problem set. The median is calculated by first sorting all the pixel values from the window into numerical order, and then replacing the pixel being considered with the middle (median) pixel value.
+
+![P6Moj.png](https://i.stack.imgur.com/P6Moj.png =400x210) ![YIhNh.png](https://i.stack.imgur.com/YIhNh.png =400x320)
+
 
 _Note: TBD_
 References
 - Papers
-    - [Kaggle: Denoising Dirty Documents with MATLAB - File Exchange - MATLAB Central](https://in.mathworks.com/matlabcentral/fileexchange/51812-kaggle--denoising-dirty-documents-with-matlab) 
+    - [Kaggle: Denoising Dirty Documents with MATLAB - File Exchange - MATLAB Central](https://in.mathworks.com/matlabcentral/fileexchange/51812-kaggle--denoising-dirty-documents-with-matlab) (img2csv, submit-developed my own):heavy_check_mark:
     - [Image Processing + Machine Learning in R: Denoising Dirty Documents Tutorial Series No Free Hunch](http://blog.kaggle.com/2015/12/04/image-processing-machine-learning-in-r-denoising-dirty-documents-tutorial-series/)  
     - [Colin Priest](https://colinpriest.com/2015/08/01/denoising-dirty-documents-part-1/)
     - [Denoising with Random Forests - 0.02628](https://www.kaggle.com/johnnystrings/denoising-with-random-forests) 
