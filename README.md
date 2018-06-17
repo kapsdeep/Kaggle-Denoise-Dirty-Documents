@@ -19,7 +19,7 @@
   | ------------- |:-------------:| -----:| -----:| -----:| -----:|
   | Prj#1: Kaggle competitions using google collab       | 6/16 | None | 0.2 | Worst error without any processing | Done  :white_check_mark: |
 | Prj#2: Re-use Prj#1 with "simple background removal model"       | 6/16 | None | 0.06002 | Median filters are used for salt & pepper noise & results point out that a image processing would be helpful for the challenge | Done  :white_check_mark: |
-| Prj#3: Build over Prj#2 with "simple linear regression model"       | 6/18 | Monday is working day | NA | NA | Initiated     |
+| Prj#3: Build over Prj#2 with "simple linear regression model"       | 6/18 | Other important stuff on monday | NA | NA | Initiated     |
 | Prj#4: Build over Prj#2 using image processing techniques from top kagglers       | 6/20 | NA | NA | Read papers in references also | Not started     |
 | Prj#5: Implement Prj#4 in Keras using winograd       | 6/22 | NA | NA | NA | Not started     |
 | Prj#6: TBD       | 6/25 | NA | NA | NA | Not started     |
