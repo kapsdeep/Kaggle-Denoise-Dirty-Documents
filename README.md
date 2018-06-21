@@ -52,7 +52,8 @@ original![test.png](https://raw.githubusercontent.com/kapsdeep/Kaggle-Denoise-Di
 
 ## Project Plan
 >Lets break the project into independent tasks to enable deeper understanding of individual topics & explore multiple ways to reach the objective
->| Project        | ETA          | Risk(s)  | rmse  | Analysis  | Status  |
+
+| Project        | ETA          | Risk(s)  | rmse  | Analysis  | Status  |
   | ------------- |:-------------:| -----:| -----:| -----:| -----:|
   | Prj#1: Kaggle competitions using google collab       | 6/16 | None | 0.2 | Worst error without any processing | Done  :white_check_mark: |
 | Prj#2: Re-use Prj#1 with "simple background removal model"       | 6/16 | None | 0.06002 | Median filters are used for salt & pepper noise & results point out that a image processing would be helpful for the challenge | Done  :white_check_mark: |
