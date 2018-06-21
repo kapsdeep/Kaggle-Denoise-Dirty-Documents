@@ -1,28 +1,66 @@
 # Problem statement
-#### Develop ML solution to remove noise from scanned copies of old book pages/handwritten documents (marked with stains, tea marks, sun spots - in the challenge the noise is synthetic though). Denoised scanned pages are helpful for Optical character recognition - a technique to convert old printed text into digital format for better accessibility. 
-* Complexity: medium (since 3 years old)
-* Dataset: scanned pages with synthetic noise added - (train, train_cleaned), test
-* Objective: rmse=0.0275 b/w pixel intensities of cleaned & actual(ground_truth) image
-* Deliverable: Keras implementation using winograd
-* Submission file: [DEEPAK_KAPOOR_Session7.ipynb](https://github.com/kapsdeep/Kaggle-Denoise-Dirty-Documents/blob/master/DEEPAK_KAPOOR_Session7.ipynb)
+  #### Develop ML solution to remove noise from scanned copies of old book pages/handwritten documents (marked with stains, tea marks, sun spots - in the challenge the noise is synthetic though). Denoised scanned pages are helpful for Optical character recognition - a technique to convert old printed text into digital format for better accessibility. 
+  * Complexity: medium (since 3 years old)
+  * Dataset: scanned pages with synthetic noise added - (train, train_cleaned), test
+  * Objective: rmse=0.0275 b/w pixel intensities of cleaned & actual(ground_truth) image
+  * Deliverable: Keras implementation using winograd
+  * Submission file: [DEEPAK_KAPOOR_Session7.ipynb](https://github.com/kapsdeep/Kaggle-Denoise-Dirty-Documents/blob/master/v4_0_DEEPAK_KAPOOR_Session7.ipynb)
+
+  ## More about NOISE
+  >Noise is random variation of image density visible as pixel level variations in digital images ( and as grains in films). Noise is equally important as "Sharpness" to define image quality.
+
+  Signal to Noise ratio (SNR) is widely used metric to define image quality since the noise is closely related to signal value.
+  Noise measurments generally refer to Root mean square error(RMSE) 
+  ```
+  N = σ(S), where σ denotes the standard deviation. (S can be the signal in any one of several channels: R, G, B, Y)
+  ```
+
+  Types of Noise(s)
+  - Temporal Noise is one which varies each time a image is captured/generated
+      - can be reduced by signal averaging i.e. sum(N)/N
+  - Spatial Noise is fixed pattern noise appearing over the image space
+
+  Keras functions for temporal/spatial noise
+  - MaxPooling1D: Max pooling operation for temporal data
+  - MaxPooling2D: Max pooling operation for spatial data
+  - MaxPooling3D: Max pooling operation for 3D data (spatial or spatio-temporal)
 
 ## Solution summary
-* The project evaluation criteria states that model performance will be graded by rmse on pixel intensities values b/w (predicted image, ground_truth image). 
-* Drawing inpiration from sample submission file, I plan to use flattened arrays (pixel id, pixel intensity value) of (train-images, train_cleaned-images) & try ML(DL)/Image processing techniques to optimize.
-* Worst case score is 0.2 derived by submitting csv file using test data without any processing hence my first goal is to surpass that
-    * I could hit 0.06(Prj#2, pfb) with simple median filter & ML/DL are still waiting :grinning:
+  Risks:small_red_triangle:
+  1. selecting b/w scikit solution & autoencoder
+  2. developing solution to map pixel values to images from ndarray
+  3. improve text sharpness
+  4. implement ensemble
+  
+  Progress :clock130:
+  * The project evaluation criteria states that model performance will be graded by rmse on pixel intensities values b/w (predicted image, ground_truth image). 
+  * Drawing inpiration from sample submission file, I plan to use flattened arrays (pixel id, pixel intensity value) of (train-images, train_cleaned-images) & try ML(DL)/Image processing techniques to optimize.
+  * Worst case score is 0.2 derived by submitting csv file using test data without any processing hence my first goal is to surpass that
+      * I could hit 0.06(Prj#2, pfb) with simple median filter & ML/DL are still waiting :grinning:
+  * Dropping idea of linear regression since rmse score isn't improving beyond 0.7
+  * Autoencoder model is working better than simple median filter & thresholding
+    * though the results are visibly better but when I kaggle evaluation score dropped to 0.11479 since the csv contained results from autoencoder for 540x420 images & Prj#2 results for 258x540 images. Additionally, I am not sure whether pixel intensities were mapped correctly in the submission.csv
+  * To cover the risk of running out of time, I used another solution based on random forrest using scikit, it seems to be working rightaway & giving rmse scrore=0.02656
+    * Analysing the solution, it's a single layer convolution being fed to random forrest using flattened arrays
+    * Need to take cues from here to maintain pixel intensity value mapping to images
+  * Inspired by random forest ML solution, I used bias & dropout in autoencoder model to simulate randomness ....results are visually better but I observe drop in text sharpeness
+    * Tried AvgPooling2D for spatial noise correction though am aware it might further worsen test clarity => scrapped(background turned grey against black using MaxPooling2D)
+    * Not sure if MaxPooling3D (used to correct temporal & spatial noises together) would help
+
+original![test.png](https://raw.githubusercontent.com/kapsdeep/Kaggle-Denoise-Dirty-Documents/master/test.png =260x210) autoencoder![autoencoder.png](https://raw.githubusercontent.com/kapsdeep/Kaggle-Denoise-Dirty-Documents/master/autoencoder_op.png =260x210) median_filter&thresholding![median_filter_&_thesholding](https://raw.githubusercontent.com/kapsdeep/Kaggle-Denoise-Dirty-Documents/master/median_filter_%26_threshold.png =260x210)
+
 
 ## Project Plan
 >Lets break the project into independent tasks to enable deeper understanding of individual topics & explore multiple ways to reach the objective
-
-| Project        | ETA          | Risk(s)  | rmse  | Analysis  | Status  |
+>| Project        | ETA          | Risk(s)  | rmse  | Analysis  | Status  |
   | ------------- |:-------------:| -----:| -----:| -----:| -----:|
   | Prj#1: Kaggle competitions using google collab       | 6/16 | None | 0.2 | Worst error without any processing | Done  :white_check_mark: |
 | Prj#2: Re-use Prj#1 with "simple background removal model"       | 6/16 | None | 0.06002 | Median filters are used for salt & pepper noise & results point out that a image processing would be helpful for the challenge | Done  :white_check_mark: |
-| Prj#3: Build over Prj#2 with "simple linear regression model"       | 6/18 | Other important stuff in weekdays | NA | Problem re-structuring for ML, Scatter plaotting training data to arrive at linear relationship, using plt.cmap for image visualisation | In-progress     |
-| Prj#4: Build over Prj#2 using image processing techniques from top kagglers       | 6/20 | Choose from multiple submissions after reading all solutions | NA | starting with colin's solution | Not started     |
-| Prj#5: Implement Prj#4 in Keras using winograd       | 6/22 | NA | NA | NA | Not started     |
-| Prj#6: TBD       | 6/25 | NA | NA | NA | Not started     |
+| Prj#3: Build over Prj#2 with "simple linear regression model"       | 6/18 | Other important stuff in weekdays | NA | Problem re-structuring for ML, Scatter plotting training data to arrive at linear relationship, using plt.cmap for image visualisation (didn't find much value pursuing since the expected result is 0.07 rmse) | Dropped:x:     |
+| Prj#4: Build over Prj#2 using image processing techniques from top kagglers       | 6/20 | Choose from multiple submissions after reading all solutions | NA | starting with colin's solution: classic ML approach of linear regression=>canny edge detection+GBM=>Adaptive thresholding=>feature enginerring=>stacking=>CNN=>Ensemble. I believe using CNN options that simulate say thresholding will be worhtwile | Dropped:x:     |
+| Prj#5: scikit RandomForestRegressor ML model   | 6/22 | can't find equivalent keras functions, trying dropout, bias | 0.02656 | (ML approach using flattened array) Single layer 3x3 convolution(same padding) followed by randomforrestregressor with smart mapping of pixel values to image index | In-progress     |
+| Prj#6: Keras implementation using autoencoders       | 6/22 | keeping track of pixel intensity for each image because the CNN works on ndarray & o/p being ndarray I still need to figure out how to tag image to pixel values | NA | network performs well on background noise | In-progress     |
+| Prj#7: Implement Prj#6 using winograd & stacking/Ensemble       | 6/25 | need to try out ensemble asap since doing 1st time | NA | NA | Not started     |
 
 #### Top kaggle submissions to read
 | Kaggler        | Score          | Kernel  | Packages  |
@@ -77,6 +115,17 @@
 3. [Gradient Boosting from scratch – ML Review – Medium](https://medium.com/mlreview/gradient-boosting-from-scratch-1e317ae4587d)
 4. [Basics of Ensemble Learning Explained in Simple English](https://www.analyticsvidhya.com/blog/2015/08/introduction-ensemble-learning/)
 
+#### Prj#5: scikit RandomForestRegressor ML model
+1. Try the kaggle solution out of box to see it works :heavy_check_mark:
+2. Read up scikit functions to understand the model(joblib.Parallel, np.hstack, np.vstack,numpy.ndarray.flatten) :heavy_check_mark:
+3. Single layer convolution(as used in get_feature_from_image()) is easy do in keras
+4. Find euivalent of random forrest in keras maybe dropout or bias :sos:
+
+#### Prj#6: Keras implementation using autoencoders
+1. Compare the model o/p to "simple background removal" :heavy_check_mark:
+2. Modify n/w to benefit from other solutions - adaptive thresholding, random forrest, median filter, GBM, Ensemble, Sharpen the text 
+3. how to ensure ndarray pixel value corresponds to particlular image in test set ?? :sos:
+
 
 #### Median Filters
 >Median filters are non-linear filters used widely for removing salt-pepper noise while preserving edges. Since we need to preseve text while removing noise hence seems to better suited for current problem set. The median is calculated by first sorting all the pixel values from the window into numerical order, and then replacing the pixel being considered with the middle (median) pixel value.
@@ -97,6 +146,11 @@ References
       - [kaggle/denoising-dirty-documents at master · gdb/kaggle · GitHub](https://github.com/gdb/kaggle/tree/master/denoising-dirty-documents)
 - Misc
     - [Complete list of github markdown emoji markup · GitHub](https://gist.github.com/rxaviers/7360908)
+    - [Noise in photographic images | imatest](http://www.imatest.com/docs/noise/)
+    - [5 Tips on Noise Reduction — Cinetic Studios](http://www.cineticstudios.com/blog/2015/12/5-tips-on-noise-reduction.html)
+    - [From image files to numpy arrays! | Kaggle](https://www.kaggle.com/lgmoneda/from-image-files-to-numpy-arrays)
+    - [Building Autoencoders in Keras](https://blog.keras.io/building-autoencoders-in-keras.html)
+    - [python - Saving a Numpy array as an image - Stack Overflow](https://stackoverflow.com/questions/902761/saving-a-numpy-array-as-an-image)
 - Collab
     - #https://colab.research.google.com/notebooks/io.ipynb#scrollTo=zU5b6dlRwUQk
     - #Alternate: https://github.com/Kaggle/kaggle-api (didn't try kaggle APIs though seemingly easy)
