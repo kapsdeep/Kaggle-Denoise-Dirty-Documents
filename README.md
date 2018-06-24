@@ -27,9 +27,9 @@
 
 ## Solution summary
   Risks:small_red_triangle:
-  1. selecting b/w scikit solution & autoencoder
+  1. ~~selecting b/w scikit solution & autoencoder~~ will document scikit if nothing else otherwise autoencoder still looks hopefull
   2. developing solution to map pixel values to images from ndarray
-  3. improve text sharpness
+  3. ~~improve text sharpness~~ deeper layers, less upsampling2D/MaxPooling helped regain text clarity by reducing interpolation
   4. implement ensemble
   
   Progress :clock130:
@@ -44,7 +44,7 @@
     * Analysing the solution, it's a single layer convolution being fed to random forrest using flattened arrays
     * Need to take cues from here to maintain pixel intensity value mapping to images
   * Inspired by random forest ML solution, I used bias & dropout in autoencoder model to simulate randomness ....results are visually better but I observe drop in text sharpeness
-    * Tried AvgPooling2D for spatial noise correction though am aware it might further worsen test clarity => scrapped(background turned grey against black using MaxPooling2D)
+    * Tried AvgPooling2D for spatial noise correction though am aware it might further worsen text clarity => scrapped(background turned grey against black using MaxPooling2D)
     * Not sure if MaxPooling3D (used to correct temporal & spatial noises together) would help
 
 original![test.png](https://raw.githubusercontent.com/kapsdeep/Kaggle-Denoise-Dirty-Documents/master/test.png =260x210) autoencoder![autoencoder.png](https://raw.githubusercontent.com/kapsdeep/Kaggle-Denoise-Dirty-Documents/master/autoencoder_op.png =260x210) median_filter&thresholding![median_filter_&_thesholding](https://raw.githubusercontent.com/kapsdeep/Kaggle-Denoise-Dirty-Documents/master/median_filter_%26_threshold.png =260x210)
@@ -52,8 +52,7 @@ original![test.png](https://raw.githubusercontent.com/kapsdeep/Kaggle-Denoise-Di
 
 ## Project Plan
 >Lets break the project into independent tasks to enable deeper understanding of individual topics & explore multiple ways to reach the objective
-
-| Project        | ETA          | Risk(s)  | rmse  | Analysis  | Status  |
+>| Project        | ETA          | Risk(s)  | rmse  | Analysis  | Status  |
   | ------------- |:-------------:| -----:| -----:| -----:| -----:|
   | Prj#1: Kaggle competitions using google collab       | 6/16 | None | 0.2 | Worst error without any processing | Done  :white_check_mark: |
 | Prj#2: Re-use Prj#1 with "simple background removal model"       | 6/16 | None | 0.06002 | Median filters are used for salt & pepper noise & results point out that a image processing would be helpful for the challenge | Done  :white_check_mark: |
@@ -126,6 +125,18 @@ original![test.png](https://raw.githubusercontent.com/kapsdeep/Kaggle-Denoise-Di
 1. Compare the model o/p to "simple background removal" :heavy_check_mark:
 2. Modify n/w to benefit from other solutions - adaptive thresholding, random forrest, median filter, GBM, Ensemble, Sharpen the text 
 3. how to ensure ndarray pixel value corresponds to particlular image in test set ?? :sos:
+4. Using deeper Conv layers helped improve text clarity since upsampling was approximating too much("i" was appearing as "l")
+    - calculate #layers for input resolution
+    - check if different resolutions can be handled at once because 258x540 is predicting black frame for some weird reason
+    - trying with resizing 258x540 to 420x540 & training the n/w at once
+        - apparently skimage.transform.resize on 258x540 is rendering all pixel intensities as constt value because of which all resized images appear blank in train/test
+``` 
+TARGET_DIR=Path for i in TARGET_DIR.iterdir(): img = cv2.imread(str(i),0) bottle_resized = resize(img, (420, 540),preserve_range=True) file = str(i).split('/')[4] imsave(file,bottle_resized) </script>
+```
+      - need to try resize without flattening out pixel value, weird becasue image looks fine hence something to do with numpy array & skimage resize
+      - skimage has a bug ![skimage.resize bug with ints · Issue #2702](https://github.com/scikit-image/scikit-image/issues/2702) & workaround is to conver the image to float before resizing & use preserve_range = TRUE
+```bottle_resized = resize(img_as_float(x_test[1]), (420, 540),preserve_range=True)```
+      - try padding 258x540 to 420x540 - might introduce additional error towards padding
 
 
 #### Median Filters
@@ -152,6 +163,7 @@ References
     - [From image files to numpy arrays! | Kaggle](https://www.kaggle.com/lgmoneda/from-image-files-to-numpy-arrays)
     - [Building Autoencoders in Keras](https://blog.keras.io/building-autoencoders-in-keras.html)
     - [python - Saving a Numpy array as an image - Stack Overflow](https://stackoverflow.com/questions/902761/saving-a-numpy-array-as-an-image)
+    - [matplotlib.pyplot.subplots — Matplotlib 2.2.2 documentation](https://matplotlib.org/api/_as_gen/matplotlib.pyplot.subplots.html)
 - Collab
     - #https://colab.research.google.com/notebooks/io.ipynb#scrollTo=zU5b6dlRwUQk
     - #Alternate: https://github.com/Kaggle/kaggle-api (didn't try kaggle APIs though seemingly easy)
