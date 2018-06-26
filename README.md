@@ -46,20 +46,22 @@
   * Inspired by random forest ML solution, I used bias & dropout in autoencoder model to simulate randomness ....results are visually better but I observe drop in text sharpeness
     * Tried AvgPooling2D for spatial noise correction though am aware it might further worsen text clarity => scrapped(background turned grey against black using MaxPooling2D)
     * Not sure if MaxPooling3D (used to correct temporal & spatial noises together) would help
+    * Tried the model on by resizing 258x540 to 420x540 for training/prediction but rmse score hit worst 0.25362 - probably resizing caused intensity variation since for submission I had to resize back to 258x540.
 
 original![test.png](https://raw.githubusercontent.com/kapsdeep/Kaggle-Denoise-Dirty-Documents/master/test.png =260x210) autoencoder![autoencoder.png](https://raw.githubusercontent.com/kapsdeep/Kaggle-Denoise-Dirty-Documents/master/autoencoder_op.png =260x210) median_filter&thresholding![median_filter_&_thesholding](https://raw.githubusercontent.com/kapsdeep/Kaggle-Denoise-Dirty-Documents/master/median_filter_%26_threshold.png =260x210)
 
 
 ## Project Plan
 >Lets break the project into independent tasks to enable deeper understanding of individual topics & explore multiple ways to reach the objective
->| Project        | ETA          | Risk(s)  | rmse  | Analysis  | Status  |
+
+| Project        | ETA          | Risk(s)  | rmse  | Analysis  | Status  |
   | ------------- |:-------------:| -----:| -----:| -----:| -----:|
   | Prj#1: Kaggle competitions using google collab       | 6/16 | None | 0.2 | Worst error without any processing | Done  :white_check_mark: |
 | Prj#2: Re-use Prj#1 with "simple background removal model"       | 6/16 | None | 0.06002 | Median filters are used for salt & pepper noise & results point out that a image processing would be helpful for the challenge | Done  :white_check_mark: |
 | Prj#3: Build over Prj#2 with "simple linear regression model"       | 6/18 | Other important stuff in weekdays | NA | Problem re-structuring for ML, Scatter plotting training data to arrive at linear relationship, using plt.cmap for image visualisation (didn't find much value pursuing since the expected result is 0.07 rmse) | Dropped:x:     |
 | Prj#4: Build over Prj#2 using image processing techniques from top kagglers       | 6/20 | Choose from multiple submissions after reading all solutions | NA | starting with colin's solution: classic ML approach of linear regression=>canny edge detection+GBM=>Adaptive thresholding=>feature enginerring=>stacking=>CNN=>Ensemble. I believe using CNN options that simulate say thresholding will be worhtwile | Dropped:x:     |
 | Prj#5: scikit RandomForestRegressor ML model   | 6/22 | can't find equivalent keras functions, trying dropout, bias | 0.02656 | (ML approach using flattened array) Single layer 3x3 convolution(same padding) followed by randomforrestregressor with smart mapping of pixel values to image index | In-progress     |
-| Prj#6: Keras implementation using autoencoders       | 6/22 | keeping track of pixel intensity for each image because the CNN works on ndarray & o/p being ndarray I still need to figure out how to tag image to pixel values | NA | network performs well on background noise | In-progress     |
+| Prj#6: Keras implementation using autoencoders       | 6/22 | keeping track of pixel intensity for each image because the CNN works on ndarray & o/p being ndarray I still need to figure out how to tag image to pixel values | 0.05663 | network performs well on background noise. combined with background removal deeper n/w is performing better | In-progress     |
 | Prj#7: Implement Prj#6 using winograd & stacking/Ensemble       | 6/25 | need to try out ensemble asap since doing 1st time | NA | NA | Not started     |
 
 #### Top kaggle submissions to read
@@ -137,7 +139,11 @@ TARGET_DIR=Path for i in TARGET_DIR.iterdir(): img = cv2.imread(str(i),0) bottle
       - skimage has a bug ![skimage.resize bug with ints · Issue #2702](https://github.com/scikit-image/scikit-image/issues/2702) & workaround is to conver the image to float before resizing & use preserve_range = TRUE
 ```bottle_resized = resize(img_as_float(x_test[1]), (420, 540),preserve_range=True)```
       - try padding 258x540 to 420x540 - might introduce additional error towards padding
-
+      - median + 10 epochs: score = 0.08923, train_mse = 0.07
+median + 50 epochs: score = 0.05663, train_mse = 0.037
+median + 100 epochs: score = , train_mse = 0.0017
+change np array to float64 & k=3 in medfilt2D
+play with kernel size of conv layers
 
 #### Median Filters
 >Median filters are non-linear filters used widely for removing salt-pepper noise while preserving edges. Since we need to preseve text while removing noise hence seems to better suited for current problem set. The median is calculated by first sorting all the pixel values from the window into numerical order, and then replacing the pixel being considered with the middle (median) pixel value.
@@ -164,6 +170,7 @@ References
     - [Building Autoencoders in Keras](https://blog.keras.io/building-autoencoders-in-keras.html)
     - [python - Saving a Numpy array as an image - Stack Overflow](https://stackoverflow.com/questions/902761/saving-a-numpy-array-as-an-image)
     - [matplotlib.pyplot.subplots — Matplotlib 2.2.2 documentation](https://matplotlib.org/api/_as_gen/matplotlib.pyplot.subplots.html)
+    - https://archive.ics.uci.edu/ml/datasets/NoisyOffice
 - Collab
     - #https://colab.research.google.com/notebooks/io.ipynb#scrollTo=zU5b6dlRwUQk
     - #Alternate: https://github.com/Kaggle/kaggle-api (didn't try kaggle APIs though seemingly easy)
