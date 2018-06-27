@@ -25,14 +25,39 @@
   - MaxPooling2D: Max pooling operation for spatial data
   - MaxPooling3D: Max pooling operation for 3D data (spatial or spatio-temporal)
 
+#### Median Filters
+>Median filters are non-linear filters used widely for removing salt-pepper noise while preserving edges. Since we need to preseve text while removing noise hence seems to better suited for current problem set. The median is calculated by first sorting all the pixel values from the window into numerical order, and then replacing the pixel being considered with the middle (median) pixel value.
+
+![P6Moj.png](https://i.stack.imgur.com/P6Moj.png =400x210) ![YIhNh.png](https://i.stack.imgur.com/YIhNh.png =400x320)
+
+#### Image Thresholding
+>The simplest property that pixels in a region can share is intensity.So, a natural way to segment such regions is
+through thresholding, the separation of light and dark regions.
+Thresholding creates binary images from grey-level ones by turning all pixels below some threshold to zero and all pixels about that threshold to one. (What you want to do with pixels at the threshold doesn’t matter, as long as you’re consistent.)
+
+$$g(x,y) = 1 \newif\ifpaper f(x,y) > T \else 0 \fi$$
+
+Major problem with global thresholding is that it might pull undesired information to local regions hence different types of methods are used
+  - local thresholding
+  - automated thresholding 
+    - using known distribution
+    - k-means clsutering
 ## Solution summary
-  Risks:small_red_triangle:
-  1. ~~selecting b/w scikit solution & autoencoder~~ will document scikit if nothing else otherwise autoencoder still looks hopefull
-  2. developing solution to map pixel values to images from ndarray
+  #### Risks:small_red_triangle:
+  1. If (background removal + auto-encoder) with 200 epochs doesn't beats 0.0275 by tmrw morning then need to try deep guided filter GAN, deblur GAN, unet, evolutionary auto-encoder to achieve the score in next 2 days
+  2. Not enough time left to understand in-depth about GANs, unet (will explore after submission)
+  2. ~~selecting b/w scikit solution & autoencoder~~ will document scikit if nothing else otherwise autoencoder still looks hopefull
+  2. ~~developing solution to map pixel values to images from ndarray~~ solved
   3. ~~improve text sharpness~~ deeper layers, less upsampling2D/MaxPooling helped regain text clarity by reducing interpolation
   4. implement ensemble
   
-  Progress :clock130:
+  #### Dead Ends:no_entry_sign:
+  1. Trying to standardise images to single size for processing was time invested without any useful results/learnings for denoising documents or any other image processing challenge I believe (4 days including weekends) :frowning:
+  2. Debugging scikit issues was way too much I could afford within the submission time (1 day)
+  3. Trying to replicate ML techniques (mostly from top kagglers) in Keras didn't land me better (3 days) :frowning:
+  4. Invested lot time in core concepts - not exactly a dead end though. But didn't had enough bandwidth to achieve & validate say adaptive thresholding because a simple thresholding of 0.1 in "background removal" pulled me to 0.06 so I still plan to explore that path too.
+  
+  #### Progress :clock130:
   * The project evaluation criteria states that model performance will be graded by rmse on pixel intensities values b/w (predicted image, ground_truth image). 
   * Drawing inpiration from sample submission file, I plan to use flattened arrays (pixel id, pixel intensity value) of (train-images, train_cleaned-images) & try ML(DL)/Image processing techniques to optimize.
   * Worst case score is 0.2 derived by submitting csv file using test data without any processing hence my first goal is to surpass that
@@ -47,6 +72,8 @@
     * Tried AvgPooling2D for spatial noise correction though am aware it might further worsen text clarity => scrapped(background turned grey against black using MaxPooling2D)
     * Not sure if MaxPooling3D (used to correct temporal & spatial noises together) would help
     * Tried the model on by resizing 258x540 to 420x540 for training/prediction but rmse score hit worst 0.25362 - probably resizing caused intensity variation since for submission I had to resize back to 258x540.
+    * Deeper auto-encoder model performed better with pre-processed images (using background noise removal by determining bakcground with median filter & remove noise using global thresholding) improving score from 0.06 => 0.05663 but too late & trivial improvement
+    * Try with different loss functions & more epochs
 
 original![test.png](https://raw.githubusercontent.com/kapsdeep/Kaggle-Denoise-Dirty-Documents/master/test.png =260x210) autoencoder![autoencoder.png](https://raw.githubusercontent.com/kapsdeep/Kaggle-Denoise-Dirty-Documents/master/autoencoder_op.png =260x210) median_filter&thresholding![median_filter_&_thesholding](https://raw.githubusercontent.com/kapsdeep/Kaggle-Denoise-Dirty-Documents/master/median_filter_%26_threshold.png =260x210)
 
@@ -60,9 +87,9 @@ original![test.png](https://raw.githubusercontent.com/kapsdeep/Kaggle-Denoise-Di
 | Prj#2: Re-use Prj#1 with "simple background removal model"       | 6/16 | None | 0.06002 | Median filters are used for salt & pepper noise & results point out that a image processing would be helpful for the challenge | Done  :white_check_mark: |
 | Prj#3: Build over Prj#2 with "simple linear regression model"       | 6/18 | Other important stuff in weekdays | NA | Problem re-structuring for ML, Scatter plotting training data to arrive at linear relationship, using plt.cmap for image visualisation (didn't find much value pursuing since the expected result is 0.07 rmse) | Dropped:x:     |
 | Prj#4: Build over Prj#2 using image processing techniques from top kagglers       | 6/20 | Choose from multiple submissions after reading all solutions | NA | starting with colin's solution: classic ML approach of linear regression=>canny edge detection+GBM=>Adaptive thresholding=>feature enginerring=>stacking=>CNN=>Ensemble. I believe using CNN options that simulate say thresholding will be worhtwile | Dropped:x:     |
-| Prj#5: scikit RandomForestRegressor ML model   | 6/22 | can't find equivalent keras functions, trying dropout, bias | 0.02656 | (ML approach using flattened array) Single layer 3x3 convolution(same padding) followed by randomforrestregressor with smart mapping of pixel values to image index | In-progress     |
-| Prj#6: Keras implementation using autoencoders       | 6/22 | keeping track of pixel intensity for each image because the CNN works on ndarray & o/p being ndarray I still need to figure out how to tag image to pixel values | 0.05663 | network performs well on background noise. combined with background removal deeper n/w is performing better | In-progress     |
-| Prj#7: Implement Prj#6 using winograd & stacking/Ensemble       | 6/25 | need to try out ensemble asap since doing 1st time | NA | NA | Not started     |
+| Prj#5: scikit RandomForestRegressor ML model   | 6/22 | can't find equivalent keras functions, trying dropout, bias | 0.02656 | (ML approach using flattened array) Single layer 3x3 convolution(same padding) followed by randomforrestregressor with smart mapping of pixel values to image index | Dropped:x:   |
+| Prj#6: Keras implementation using autoencoders       | ~~6/22~~ 6/28 | keeping track of pixel intensity for each image because the CNN works on ndarray & o/p being ndarray I still need to figure out how to tag image to pixel values | 0.05663=>0.04092 | network performs well on background noise. combined with background removal deeper n/w is performing better, increasing #epochs from 50=>100 helped improve score, kaggle soln trained for 200 epochs | In-progress     |
+| Prj#7: ~~Implement Prj#6 using winograd & stacking/Ensemble~~ Choose model that beats Prj#6 & document solution   | 6/30 | results from papers look promising | NA | NA | Not started     |
 
 #### Top kaggle submissions to read
 | Kaggler        | Score          | Kernel  | Packages  |
@@ -135,25 +162,44 @@ original![test.png](https://raw.githubusercontent.com/kapsdeep/Kaggle-Denoise-Di
 ``` 
 TARGET_DIR=Path for i in TARGET_DIR.iterdir(): img = cv2.imread(str(i),0) bottle_resized = resize(img, (420, 540),preserve_range=True) file = str(i).split('/')[4] imsave(file,bottle_resized) </script>
 ```
-      - need to try resize without flattening out pixel value, weird becasue image looks fine hence something to do with numpy array & skimage resize
-      - skimage has a bug ![skimage.resize bug with ints · Issue #2702](https://github.com/scikit-image/scikit-image/issues/2702) & workaround is to conver the image to float before resizing & use preserve_range = TRUE
+    - need to try resize without flattening out pixel value, weird becasue image looks fine hence something to do with numpy array & skimage resize
+      - skimage has a bug [skimage.resize bug with ints · Issue #2702](https://github.com/scikit-image/scikit-image/issues/2702) & workaround is to conver the image to float before resizing & use preserve_range = TRUE
 ```bottle_resized = resize(img_as_float(x_test[1]), (420, 540),preserve_range=True)```
-      - try padding 258x540 to 420x540 - might introduce additional error towards padding
-      - median + 10 epochs: score = 0.08923, train_mse = 0.07
-median + 50 epochs: score = 0.05663, train_mse = 0.037
-median + 100 epochs: score = , train_mse = 0.0017
-change np array to float64 & k=3 in medfilt2D
-play with kernel size of conv layers
+      - ~~try padding 258x540 to 420x540 - might introduce additional error towards padding~~
+      - background removal + 10 epochs: score = 0.08923, train_mse = 0.07
+      - background removal + 50 epochs: score = 0.05663, train_mse = 0.037
+      - background removal + 100 epochs: score = 0.04092 , train_mse = 0.0018
+      - background removal + 200 epochs: score =  , train_mse = 
+      - change np array to float64 & k=3 in medfilt2D (didn't help, accuracy wasn't improving so I believe larger Kernel(11x11) is really well-suited for background detection)
+      - play with kernel size of conv layers
+        - keep epoch=50 
+          k=7x7
+          optimizer=adam
+          does train_loss beats 0.037 ?
+            loss stuck at loss: 0.0858 till epoch#10 hence scrapping off
+        - keep epoch=50 
+          k=7x7
+          optimizer=rmsprop
+          does train_loss beats 0.037 ?
+            loss stuck at loss: 0.0858 till epoch#10 hence scrapping off
+        - keep epoch=50 
+          k=5x5
+          optimizer=rmsprop
+          does train_loss beats 0.037 ?
+            loss stuck at loss: 0.0858 till epoch#10 hence scrapping off
 
-#### Median Filters
->Median filters are non-linear filters used widely for removing salt-pepper noise while preserving edges. Since we need to preseve text while removing noise hence seems to better suited for current problem set. The median is calculated by first sorting all the pixel values from the window into numerical order, and then replacing the pixel being considered with the middle (median) pixel value.
-
-![P6Moj.png](https://i.stack.imgur.com/P6Moj.png =400x210) ![YIhNh.png](https://i.stack.imgur.com/YIhNh.png =400x320)
-
+#### Prj#7: Try 
+1. Choose b/w deep guided filter, deblur-gan, evolutionary auto-encoder & unet for best fit to the project
+2. Quickly replicate the results 
 
 _Note: TBD_
 References
 - Papers
+    - [GitHub - zhixuhao/unet: unet for image segmentation](https://github.com/zhixuhao/unet)
+    - [GAN with Keras: Application to Image Deblurring – Sicara's blog](https://blog.sicara.com/keras-generative-adversarial-networks-image-deblurring-45e3ab6977b5)
+    - [GitHub - RaphaelMeudec/deblur-gan: Keras implementation of "DeblurGAN: Blind Motion Deblurring Using Conditional Adversarial Networks"](https://github.com/RaphaelMeudec/deblur-gan)
+    - [GitHub - wuhuikai/DeepGuidedFilter: Official Implementation for Deep Guided Filter, CVPR 2018](https://github.com/wuhuikai/DeepGuidedFilter)
+    - [GitHub - sg-nm/Evolutionary-Autoencoders: Exploiting the Potential of Standard Convolutional Autoencoders for Image Restoration by Evolutionary Search](https://github.com/sg-nm/Evolutionary-Autoencoders)
     - [Kaggle: Denoising Dirty Documents with MATLAB - File Exchange - MATLAB Central](https://in.mathworks.com/matlabcentral/fileexchange/51812-kaggle--denoising-dirty-documents-with-matlab) (img2csv, submit-developed my own):heavy_check_mark:
     - [Image Processing + Machine Learning in R: Denoising Dirty Documents Tutorial Series No Free Hunch](http://blog.kaggle.com/2015/12/04/image-processing-machine-learning-in-r-denoising-dirty-documents-tutorial-series/)  
     - [Colin Priest](https://colinpriest.com/2015/08/01/denoising-dirty-documents-part-1/)
@@ -163,6 +209,7 @@ References
     - [(PDF) Enhancement and Cleaning of Handwritten Data by Using Neural Networks](https://www.researchgate.net/publication/221258673_Enhancement_and_Cleaning_of_Handwritten_Data_by_Using_Neural_Networks)
       - [kaggle/denoising-dirty-documents at master · gdb/kaggle · GitHub](https://github.com/gdb/kaggle/tree/master/denoising-dirty-documents)
 - Misc
+    - [Loss Functions and Optimization Algorithms. Demystified.](https://medium.com/data-science-group-iitr/loss-functions-and-optimization-algorithms-demystified-bb92daff331c)
     - [Complete list of github markdown emoji markup · GitHub](https://gist.github.com/rxaviers/7360908)
     - [Noise in photographic images | imatest](http://www.imatest.com/docs/noise/)
     - [5 Tips on Noise Reduction — Cinetic Studios](http://www.cineticstudios.com/blog/2015/12/5-tips-on-noise-reduction.html)
