@@ -6,26 +6,38 @@
   * Deliverable: Keras implementation using winograd
   * Submission file: [DEEPAK_KAPOOR_Session7.ipynb](https://github.com/kapsdeep/Kaggle-Denoise-Dirty-Documents/blob/master/v4_0_DEEPAK_KAPOOR_Session7.ipynb)
 
-  ## More about NOISE
-  >Noise is random variation of image density visible as pixel level variations in digital images ( and as grains in films). Noise is equally important as "Sharpness" to define image quality.
+### Failure Analysis
+Initially I spent lot of time mastering collab env(1W) & reading top kaggle solutions(1W) just to realize the solutions posted were majorly ML approaches with heavy focus on image processing (my area of interest hence got driven down to exploring concepts). Additionally, initial score jump to 0.06 delluded me that am on right track but very soon I realized that am not able to improve upon the first week build-up hence started experimenting with auto-encoders in 2nd week(hadn't given up on image processing yet). Though score did improve with Autoencoders & ML/Image processing techniques learnt(an unlearnt) but coudln't go further than 0.03567 due to OOM errors on increasing n/w depth per receptive field calculations. At this juncture, I was left with just 2 days. Hence, quickly tried "deep guided filter" but ran into CUDA 8.0 installation error on collab so parked for later. Able to proceed with deblur-GAN but with 1 day left....trying my best.
 
-  Signal to Noise ratio (SNR) is widely used metric to define image quality since the noise is closely related to signal value.
-  Noise measurments generally refer to Root mean square error(RMSE) 
-  ```
-  N = σ(S), where σ denotes the standard deviation. (S can be the signal in any one of several channels: R, G, B, Y)
-  ```
+Improvement Areas
+- Could have saved 1.5 week(s) spent learning collab env & ML approaches (image resolution standardisation & flattening)
+- Not sure how to simulate best scores from "randomforrest models" to CNN but am not going down this path since I invested 2 days  exploring.
 
-  Types of Noise(s)
-  - Temporal Noise is one which varies each time a image is captured/generated
-      - can be reduced by signal averaging i.e. sum(N)/N
-  - Spatial Noise is fixed pattern noise appearing over the image space
+Next Actions
+- Dedicated GPU to overcome OOM error in auto-encoder solution as I still believe autoencoder can beat 0.0275 score with deeper layers
+- More time to better explore/implement "deep guided filter" & deblur-GAN
 
-  Keras functions for temporal/spatial noise
-  - MaxPooling1D: Max pooling operation for temporal data
-  - MaxPooling2D: Max pooling operation for spatial data
-  - MaxPooling3D: Max pooling operation for 3D data (spatial or spatio-temporal)
+# Learning Curve
+#### More about NOISE
+>Noise is random variation of image density visible as pixel level variations in digital images ( and as grains in films). Noise is equally important as "Sharpness" to define image quality.
 
-#### Median Filters
+Signal to Noise ratio (SNR) is widely used metric to define image quality since the noise is closely related to signal value.
+Noise measurments generally refer to Root mean square error(RMSE) 
+```
+N = σ(S), where σ denotes the standard deviation. (S can be the signal in any one of several channels: R, G, B, Y)
+```
+
+Types of Noise(s)
+- Temporal Noise is one which varies each time a image is captured/generated
+    - can be reduced by signal averaging i.e. sum(N)/N
+- Spatial Noise is fixed pattern noise appearing over the image space
+
+Keras functions for temporal/spatial noise
+- MaxPooling1D: Max pooling operation for temporal data
+- MaxPooling2D: Max pooling operation for spatial data
+- MaxPooling3D: Max pooling operation for 3D data (spatial or spatio-temporal)
+
+#### (Non-linear) Median Filters
 >Median filters are non-linear filters used widely for removing salt-pepper noise while preserving edges. Since we need to preseve text while removing noise hence seems to better suited for current problem set. The median is calculated by first sorting all the pixel values from the window into numerical order, and then replacing the pixel being considered with the middle (median) pixel value.
 
 ![P6Moj.png](https://i.stack.imgur.com/P6Moj.png =400x210) ![YIhNh.png](https://i.stack.imgur.com/YIhNh.png =400x320)
@@ -35,16 +47,37 @@
 through thresholding, the separation of light and dark regions.
 Thresholding creates binary images from grey-level ones by turning all pixels below some threshold to zero and all pixels about that threshold to one. (What you want to do with pixels at the threshold doesn’t matter, as long as you’re consistent.)
 
-$$g(x,y) = 1 \newif\ifpaper f(x,y) > T \else 0 \fi$$
+$$g(x,y) = 1 , f(x,y) > T$$
+$$g(x,y) = 0 , f(x,y) < T$$
 
 Major problem with global thresholding is that it might pull undesired information to local regions hence different types of methods are used
   - local thresholding
   - automated thresholding 
     - using known distribution
     - k-means clsutering
-## Solution summary
+
+#### Auto-encoders
+> Autoencoding is neural network implementaion of data compression that is data specific, lossy & automatically learned from dataset. They require a encoding function, decoding function & loss functions to determine b/w output of two. 
+
+- Auto-encoders have found to be working for denoising images & dimensionality reduction (use for data visualisation such as t-sne for 2D needs low dimension data). 
+- data specificty limits application of auto-encoders against say mpeg or jpeg compression algorithms since a auto-encoder trained on nuclei detection won't work for test set of pedestrians whereas jpeg compression is well-suited for any image
+
+#### GAN
+>Generative Adversarial networks i.e. mutually competent networks working together to score over each other. generator n/w creates fake outputs from noise/input & discriminator needs to judge if the output is fake/real.
+
+- For downsampling, discriminator in GANs use strided convolution (instead of maxpooling)
+- For upsampling, generator in GANs uses transposed convolution (also called deconvolution, fractionally strided convolution) 
+  - transposed convolution use learnable parameters to decide among various methods for up-sampling operation:
+    - Nearest neighbor interpolation
+    - Bi-linear interpolation
+    - Bi-cubic interpolation
+
+
+# Solution summary
   #### Risks:small_red_triangle:
   1. If (background removal + auto-encoder) with 200 epochs doesn't beats 0.0275 by tmrw morning then need to try deep guided filter GAN, deblur GAN, unet, evolutionary auto-encoder to achieve the score in next 2 days
+      - not able to further imrpove "Auto-encoder with background removal" model with deeper layers due to OOM issues, best achieved: 0.035
+      - need to go down exploring deblur-GAN or deep guided filter with 2 days at hand
   2. Not enough time left to understand in-depth about GANs, unet (will explore after submission)
   2. ~~selecting b/w scikit solution & autoencoder~~ will document scikit if nothing else otherwise autoencoder still looks hopefull
   2. ~~developing solution to map pixel values to images from ndarray~~ solved
@@ -64,6 +97,8 @@ Major problem with global thresholding is that it might pull undesired informati
       * I could hit 0.06(Prj#2, pfb) with simple median filter & ML/DL are still waiting :grinning:
   * Dropping idea of linear regression since rmse score isn't improving beyond 0.7
   * Autoencoder model is working better than simple median filter & thresholding
+original![test.png](https://raw.githubusercontent.com/kapsdeep/Kaggle-Denoise-Dirty-Documents/master/test.png =260x210) autoencoder![autoencoder.png](https://raw.githubusercontent.com/kapsdeep/Kaggle-Denoise-Dirty-Documents/master/autoencoder_op.png =260x210) median_filter&thresholding![median_filter_&_thesholding](https://raw.githubusercontent.com/kapsdeep/Kaggle-Denoise-Dirty-Documents/master/median_filter_%26_threshold.png =260x210)
+
     * though the results are visibly better but when I kaggle evaluation score dropped to 0.11479 since the csv contained results from autoencoder for 540x420 images & Prj#2 results for 258x540 images. Additionally, I am not sure whether pixel intensities were mapped correctly in the submission.csv
   * To cover the risk of running out of time, I used another solution based on random forrest using scikit, it seems to be working rightaway & giving rmse scrore=0.02656
     * Analysing the solution, it's a single layer convolution being fed to random forrest using flattened arrays
@@ -74,9 +109,9 @@ Major problem with global thresholding is that it might pull undesired informati
     * Tried the model on by resizing 258x540 to 420x540 for training/prediction but rmse score hit worst 0.25362 - probably resizing caused intensity variation since for submission I had to resize back to 258x540.
     * Deeper auto-encoder model performed better with pre-processed images (using background noise removal by determining bakcground with median filter & remove noise using global thresholding) improving score from 0.06 => 0.05663 but too late & trivial improvement
     * Try with different loss functions & more epochs
-
-original![test.png](https://raw.githubusercontent.com/kapsdeep/Kaggle-Denoise-Dirty-Documents/master/test.png =260x210) autoencoder![autoencoder.png](https://raw.githubusercontent.com/kapsdeep/Kaggle-Denoise-Dirty-Documents/master/autoencoder_op.png =260x210) median_filter&thresholding![median_filter_&_thesholding](https://raw.githubusercontent.com/kapsdeep/Kaggle-Denoise-Dirty-Documents/master/median_filter_%26_threshold.png =260x210)
-
+        * different loss functions or kernel sizes resulted in score regression but more epochs did help drive up rmse score to 0.03567
+  * Trying out deblur-GAN to beat 0.0275 score
+    * making submission to not run out of time
 
 ## Project Plan
 >Lets break the project into independent tasks to enable deeper understanding of individual topics & explore multiple ways to reach the objective
@@ -88,8 +123,8 @@ original![test.png](https://raw.githubusercontent.com/kapsdeep/Kaggle-Denoise-Di
 | Prj#3: Build over Prj#2 with "simple linear regression model"       | 6/18 | Other important stuff in weekdays | NA | Problem re-structuring for ML, Scatter plotting training data to arrive at linear relationship, using plt.cmap for image visualisation (didn't find much value pursuing since the expected result is 0.07 rmse) | Dropped:x:     |
 | Prj#4: Build over Prj#2 using image processing techniques from top kagglers       | 6/20 | Choose from multiple submissions after reading all solutions | NA | starting with colin's solution: classic ML approach of linear regression=>canny edge detection+GBM=>Adaptive thresholding=>feature enginerring=>stacking=>CNN=>Ensemble. I believe using CNN options that simulate say thresholding will be worhtwile | Dropped:x:     |
 | Prj#5: scikit RandomForestRegressor ML model   | 6/22 | can't find equivalent keras functions, trying dropout, bias | 0.02656 | (ML approach using flattened array) Single layer 3x3 convolution(same padding) followed by randomforrestregressor with smart mapping of pixel values to image index | Dropped:x:   |
-| Prj#6: Keras implementation using autoencoders       | ~~6/22~~ 6/28 | keeping track of pixel intensity for each image because the CNN works on ndarray & o/p being ndarray I still need to figure out how to tag image to pixel values | 0.05663=>0.04092 | network performs well on background noise. combined with background removal deeper n/w is performing better, increasing #epochs from 50=>100 helped improve score, kaggle soln trained for 200 epochs | In-progress     |
-| Prj#7: ~~Implement Prj#6 using winograd & stacking/Ensemble~~ Choose model that beats Prj#6 & document solution   | 6/30 | results from papers look promising | NA | NA | Not started     |
+| Prj#6: Keras implementation using autoencoders & winograd      | ~~6/22~~ 6/28 | keeping track of pixel intensity for each image because the CNN works on ndarray & o/p being ndarray I still need to figure out how to tag image to pixel values - solved by saving weights & processing images separately since pixel intensity were affected by resize | 0.05663=>0.04092=>0.03567 | (using only auto-encoder gave score of 0.25 hence added background removal) combined with background removal deeper n/w is performing better, increasing #epochs from 50=>100=>200 helped improve score, kaggle soln trained for 200 epochs however deeper layers are posing OOM issue hence blocked to proceed further with the solution, closing. | Done  :white_check_mark:(try later on powerful m/c to avoid OOM in collab)     |
+| Prj#7: ~~Implement Prj#6 using winograd & stacking/Ensemble~~ Choose b/w Deep guided filter/deblur-GAN to beat Prj#6 & document solution in remaining 2 days   | 6/30 | results from papers look promising=> CUDA 8.0 installation error in collab with deep guided filter hence switching to deblur-GAN=> resolving variable deifnition errors | NA | too early to analyse since I am still debugging initial setup issues with both deep guided filter & deblur-GAN | In-progress  (making submission & continuing to be safe)   |
 
 #### Top kaggle submissions to read
 | Kaggler        | Score          | Kernel  | Packages  |
@@ -159,45 +194,56 @@ original![test.png](https://raw.githubusercontent.com/kapsdeep/Kaggle-Denoise-Di
     - check if different resolutions can be handled at once because 258x540 is predicting black frame for some weird reason
     - trying with resizing 258x540 to 420x540 & training the n/w at once
         - apparently skimage.transform.resize on 258x540 is rendering all pixel intensities as constt value because of which all resized images appear blank in train/test
-``` 
-TARGET_DIR=Path for i in TARGET_DIR.iterdir(): img = cv2.imread(str(i),0) bottle_resized = resize(img, (420, 540),preserve_range=True) file = str(i).split('/')[4] imsave(file,bottle_resized) </script>
-```
+``` TARGET_DIR=Path for i in TARGET_DIR.iterdir(): img = cv2.imread(str(i),0) bottle_resized = resize(img, (420, 540),preserve_range=True) file = str(i).split('/')[4] imsave(file,bottle_resized) </script>```
     - need to try resize without flattening out pixel value, weird becasue image looks fine hence something to do with numpy array & skimage resize
       - skimage has a bug [skimage.resize bug with ints · Issue #2702](https://github.com/scikit-image/scikit-image/issues/2702) & workaround is to conver the image to float before resizing & use preserve_range = TRUE
 ```bottle_resized = resize(img_as_float(x_test[1]), (420, 540),preserve_range=True)```
-      - ~~try padding 258x540 to 420x540 - might introduce additional error towards padding~~
-      - background removal + 10 epochs: score = 0.08923, train_mse = 0.07
-      - background removal + 50 epochs: score = 0.05663, train_mse = 0.037
-      - background removal + 100 epochs: score = 0.04092 , train_mse = 0.0018
-      - background removal + 200 epochs: score =  , train_mse = 
-      - change np array to float64 & k=3 in medfilt2D (didn't help, accuracy wasn't improving so I believe larger Kernel(11x11) is really well-suited for background detection)
-      - play with kernel size of conv layers
-        - keep epoch=50 
-          k=7x7
-          optimizer=adam
-          does train_loss beats 0.037 ?
-            loss stuck at loss: 0.0858 till epoch#10 hence scrapping off
-        - keep epoch=50 
-          k=7x7
-          optimizer=rmsprop
-          does train_loss beats 0.037 ?
-            loss stuck at loss: 0.0858 till epoch#10 hence scrapping off
-        - keep epoch=50 
-          k=5x5
-          optimizer=rmsprop
-          does train_loss beats 0.037 ?
-            loss stuck at loss: 0.0858 till epoch#10 hence scrapping off
+    - ~~try padding 258x540 to 420x540 - might introduce additional error towards padding~~
+    - background removal + 10 epochs: score = 0.08923, train_mse = 0.07
+    - background removal + 50 epochs: score = 0.05663, train_mse = 0.037
+    - background removal + 100 epochs: score = 0.04092 , train_mse = 0.0018
+    - background removal + 200 epochs: score = 0.03567 , train_mse = 5.8946e-04
+    - change np array to float64 & k=3 in medfilt2D (didn't help, accuracy wasn't improving so I believe larger Kernel(11x11) is really well-suited for background detection)
+    - tried different loss functions apart from mse but not help
+    - play with kernel size of conv layers to see if background noise can be generalized with bigger kernels
+      - keep epoch=50 
+        k=7x7
+        optimizer=adam
+        does train_loss beats 0.037 ?
+          loss stuck at loss: 0.0858 till epoch#10 hence scrapping off
+      - keep epoch=50 
+        k=7x7
+        optimizer=rmsprop
+        does train_loss beats 0.037 ?
+          loss stuck at loss: 0.0858 till epoch#10 hence scrapping off
+      - keep epoch=50 
+        k=5x5
+        optimizer=rmsprop
+        does train_loss beats 0.037 ?
+          loss stuck at loss: 0.0858 till epoch#10 hence scrapping off
 
-#### Prj#7: Try 
+#### Prj#7: Choose b/w Deep guided filter/deblur-GAN to beat Prj#6 & document solution in remaining 2 days
 1. Choose b/w deep guided filter, deblur-gan, evolutionary auto-encoder & unet for best fit to the project
-2. Quickly replicate the results 
+    - deblur-GAN seems promising hence trying that first 
+    - Parallely trying deep guided filter to mitigate risk & parking unet/evolutionary auto-encoder for later :x: 
+        - _stuck at CUDA8.0 installation error, debugging needs more time hence swithcing to deblur-GAN_
+2. Implementting de-blur GAN
+    - try simple DCGAN to grasp how GANs work :heavy_check_mark:
+    - make DCGAN work on project dataset
+    - make deblur-GAN implementation work with grayscale images since implementaion is with RGB 
+        - change sizes from 256x256 to 420x540, channels to 1, weights to None (imagenet weights need 3 channel data) :heavy_check_mark:
+        - ~~resolve error "name 'critic_updates' is not defined"~~ trying with critic_updates=24
 
 _Note: TBD_
-References
+
+#### References
 - Papers
+    - [](https://arxiv.org/pdf/1710.04200.pdf)
     - [GitHub - zhixuhao/unet: unet for image segmentation](https://github.com/zhixuhao/unet)
     - [GAN with Keras: Application to Image Deblurring – Sicara's blog](https://blog.sicara.com/keras-generative-adversarial-networks-image-deblurring-45e3ab6977b5)
+    - [](http://www.matthewzeiler.com/wp-content/uploads/2017/07/cvpr2010.pdf)
     - [GitHub - RaphaelMeudec/deblur-gan: Keras implementation of "DeblurGAN: Blind Motion Deblurring Using Conditional Adversarial Networks"](https://github.com/RaphaelMeudec/deblur-gan)
+    - [](https://arxiv.org/pdf/1603.07285v1.pdf)
     - [GitHub - wuhuikai/DeepGuidedFilter: Official Implementation for Deep Guided Filter, CVPR 2018](https://github.com/wuhuikai/DeepGuidedFilter)
     - [GitHub - sg-nm/Evolutionary-Autoencoders: Exploiting the Potential of Standard Convolutional Autoencoders for Image Restoration by Evolutionary Search](https://github.com/sg-nm/Evolutionary-Autoencoders)
     - [Kaggle: Denoising Dirty Documents with MATLAB - File Exchange - MATLAB Central](https://in.mathworks.com/matlabcentral/fileexchange/51812-kaggle--denoising-dirty-documents-with-matlab) (img2csv, submit-developed my own):heavy_check_mark:
@@ -209,6 +255,7 @@ References
     - [(PDF) Enhancement and Cleaning of Handwritten Data by Using Neural Networks](https://www.researchgate.net/publication/221258673_Enhancement_and_Cleaning_of_Handwritten_Data_by_Using_Neural_Networks)
       - [kaggle/denoising-dirty-documents at master · gdb/kaggle · GitHub](https://github.com/gdb/kaggle/tree/master/denoising-dirty-documents)
 - Misc
+    - [Fast End-to-End Trainable Guided Filter](http://wuhuikai.me/DeepGuidedFilterProject/#a0758-050731_160352__I2E5385)
     - [Loss Functions and Optimization Algorithms. Demystified.](https://medium.com/data-science-group-iitr/loss-functions-and-optimization-algorithms-demystified-bb92daff331c)
     - [Complete list of github markdown emoji markup · GitHub](https://gist.github.com/rxaviers/7360908)
     - [Noise in photographic images | imatest](http://www.imatest.com/docs/noise/)
@@ -218,6 +265,8 @@ References
     - [python - Saving a Numpy array as an image - Stack Overflow](https://stackoverflow.com/questions/902761/saving-a-numpy-array-as-an-image)
     - [matplotlib.pyplot.subplots — Matplotlib 2.2.2 documentation](https://matplotlib.org/api/_as_gen/matplotlib.pyplot.subplots.html)
     - https://archive.ics.uci.edu/ml/datasets/NoisyOffice
+    - [python - Reflection padding Conv2D - Stack Overflow](https://stackoverflow.com/questions/50677544/reflection-padding-conv2d)
+    - [Topic: image-denoising · GitHub](https://github.com/topics/image-denoising)
 - Collab
     - #https://colab.research.google.com/notebooks/io.ipynb#scrollTo=zU5b6dlRwUQk
     - #Alternate: https://github.com/Kaggle/kaggle-api (didn't try kaggle APIs though seemingly easy)
